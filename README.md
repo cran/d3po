@@ -27,12 +27,12 @@ under an open source license (Apache 2.0).
 ### Overview
 
 The name 'd3po' is inspired after 'r2d3' but also 'd3po' is something that a 
-chilean will read as "dee three pooh", and "pooh" is a very typical chilean 
+chilean will read as "dee three pooh", and "poh" is a very typical chilean 
 slang. That slang reflects the true chilean spirit that copes with earthquakes 
 but in the end they build the technology and adapt to the medium constraints.
 
 Rather than starting from scratch, 'd3po' takes many ideas and adapts codes 
-from 'highcharts' (just inspiration, not code), 'echats' (excellent library), 
+from 'highcharts' (just inspiration, not code), 'echarts' (excellent library), 
 'd3plus' 1.9.8 (unmaintained, which is very unfortunate) and many posts from
 Stackoverflow that were adapted since 2016 to the date.
 
@@ -77,15 +77,13 @@ The Minimum Viable Product includes these visualization methods and features:
 * Area/distribution chart
 * Networks
 * Box and whiskers
-* Maps
 * Gramatically correct translations
+* Maps (TBA)
 
 The goal is to provide a package that becomes a gold standard for interactive 
 visualization and facilitates using Shiny.
 
-As an R package, the idea is to obtain a high quality result to be accepted on 
-rOpenSci and then CRAN. It should run on any computer with 'RStudio' and any 
-server running 'Shiny'.
+It should run on any computer with 'RStudio' and any server running 'Shiny'.
 
 We have worked under three goals:
 

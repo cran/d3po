@@ -111,6 +111,6 @@ d3po(pokemon_count) %>%
     daes(size = n, group = type_1, color = color_1, align = "left")
   ) %>%
   po_title("Share of Pokemon by Type") %>% 
-  po_labels("left", "top") %>% 
-  po_font("Times")
+  po_font("Fira Sans", 12, "uppercase") %>% 
+  po_labels("left", "top", F, "Times", 30, "uppercase")
 
