@@ -47,7 +47,11 @@ HTMLWidgets.widget({
         
         // legend
         if(x.legend === undefined) {
-          x.legend = false;
+          if (x.type === "geomap") {
+            x.legend = true;
+          } else {
+            x.legend = false;
+          }
         }
         chart.legend(x.legend);
         
@@ -57,29 +61,44 @@ HTMLWidgets.widget({
         }
         
         if (x.labels) {
-          chart.labels({"align": x.labels.align, "valign": x.labels.valign, "resize":x.labels.resize,
-            "font": {"family": x.labels.font.family, "size": x.labels.font.size, "transform": x.labels.font.transform}
+          chart.labels({
+            "align": x.labels.align, 
+            "valign": x.labels.valign, 
+            "resize":x.labels.resize
           });
         }
 
+        // if (x.type === "geomap") {
+        //   chart.labels(false);
+        // }
+
+        // these two are for networks
         if(x.edges)
           chart.edges(x.edges);
-
         if(x.nodes)
           chart.nodes(x.nodes);
-          
+
+        // this is for geomaps
+        if(x.coords)
+          chart.coords(x.coords);
+        if (x.text)
+          chart.text(x.text);
+        if(x.tooltip)
+          chart.tooltip(x.tooltip);
           
         if(x.font) {
-          chart.font({"family": x.font.family, "size": x.font.size, "transform": x.font.transform});
+          chart.font({
+            "family": x.font.family,
+            "size": x.font.size, 
+            "transform": x.font.transform});
         }
         
         if(x.background)
           chart.background(x.background);
-        
+
         chart.resize(true);
         
         chart.draw();
-
       },
 
       getChart: function(){
