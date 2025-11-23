@@ -23,30 +23,26 @@ an 'htmlwidgets' object with the desired interactive plot
 Plot a donut
 }
 \examples{
-# library(dplyr)
-# dout <- pokemon \%>\%
-#  group_by(type_1, color_1) \%>\%
-#  count()
-
-dout <- data.frame(
-  type_1 = c(
-    "bug", "dragon", "electric", "fairy", "fighting",
-    "fire", "ghost", "grass", "ground", "ice",
-    "normal", "poison", "psychic", "rock", "water"
-  ),
-  color_1 = c(
-    "#A8B820", "#7038F8", "#F8D030", "#EE99AC", "#C03028",
-    "#F08030", "#705898", "#78C850", "#E0C068", "#98D8D8",
-    "#A8A878", "#A040A0", "#F85888", "#B8A038", "#6890F0"
-  ),
-  n = c(
-    12, 3, 9, 2, 7,
-    12, 3, 12, 8, 2,
-    22, 14, 8, 9, 28
+if (interactive()) {
+  trade_by_continent <- d3po::trade[d3po::trade$year == 2023L, ]
+  trade_by_continent <- aggregate(
+    trade ~ reporter_continent,
+    data = d3po::trade,
+    FUN = sum
   )
-)
 
-d3po(dout) \%>\%
-  po_donut(daes(size = n, group = type_1, color = color_1)) \%>\%
-  po_title("Share of Pokemon by main type")
+  # Assign colors to continents
+  my_pal <- tintin::tintin_pal(option = "The Black Island")(7)
+
+  names(my_pal) <- c(
+    "Africa", "Antarctica", "Asia",
+    "Europe", "North America", "Oceania", "South America"
+  )
+
+  trade_by_continent$color <- my_pal[trade_by_continent$reporter_continent]
+
+  d3po(trade_by_continent, width = 800, height = 600) \%>\%
+    po_donut(daes(size = trade, group = reporter_continent, inner_radius = 0.3, color = color)) \%>\%
+    po_labels(title = "Trade Share by Reporter Continent in 2023")
+}
 }

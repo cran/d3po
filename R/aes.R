@@ -1,19 +1,28 @@
-#' Aesthetics
+#' @title Aesthetics
 #'
-#' Aesthetics of the chart.
+#' @description Aesthetics of the chart.
 #'
-#' @param x,y,... List of name value pairs giving aesthetics to map to
-#'  variables. The names for x and y aesthetics are typically omitted because
-#'  they are so common; all other aspects must be named.
+#' @param x x-axis mapping.
+#' @param y y-axis mapping.
+#' @param ... Other aesthetic mappings. See the 'Aesthetics' section.
 #'
 #' @section Aesthetics:
 #' Valid aesthetics (depending on the geom)
 #'
 #' - `x`, `y`: cartesian coordinates.
 #' - `group`: grouping data.
+#' - `subgroup`: subgrouping data (for treemaps).
+#' - `name`: name data.
 #' - `color`: color of geom.
 #' - `size`: size of geom.
-#' - `layout`: layout of geom (nicely, fr, kk, graphopt, drl, lgl, mds, sugiyama), in quotes.
+#' - `stack`: `TRUE` or `FALSE` to indicate if the geom should be stacked (for bar charts).
+#' - `tiling`: "squarify" (default), "dice", "slice", "slice-dice" (for treemaps).
+#' - `layout`: "fr", "kk", or any other supported in igraph to set the geom layout (for network charts).
+#' - `gradient`: `TRUE` or `FALSE` to indicate if color should be treated as a gradient palette (for geomaps).
+#' - `sort`: ordering hint for discrete categories. Accepts one of
+#'   `"asc-x"`, `"desc-x"` (sort by the numeric x/value), or
+#'   `"asc-y"`, `"desc-y"` (sort by the category/label). Use `"none"` to
+#'   keep input order.
 #'
 #' @export
 #' @return Aesthetics for the plots such as axis (x,y), group, color and/or size
@@ -23,9 +32,9 @@ daes <- function(x, y, ...) {
   .construct_aesthetics(aes)
 }
 
-#' Construct aesthetics for re-use
+#' @title Construct aesthetics for re-use
 #'
-#' @param aes Output of [new_aes()]
+#' @param aes Aesthetic object
 #' @param cl Class to assign to output
 #'
 #' @noRd
@@ -153,7 +162,7 @@ combine_daes <- function(main_daes, daes, inherit_daes = TRUE) {
   return(main_daes)
 }
 
-#' Convert daes to names
+#' @title Convert daes to names
 #'
 #' @param daes Output of [daes()].
 #'
@@ -161,14 +170,38 @@ combine_daes <- function(main_daes, daes, inherit_daes = TRUE) {
 #' @keywords internal
 daes_to_columns <- function(daes) {
   purrr::keep(daes, function(x) {
-    !rlang::is_bare_atomic(x)
+    # Check if it's a bare atomic (scalar value)
+    if (rlang::is_bare_atomic(x)) {
+      return(FALSE)
+    }
+    # Check if it's a quosure that evaluates to a scalar
+    if (rlang::is_quosure(x)) {
+      tryCatch(
+        {
+          val <- rlang::eval_tidy(x)
+          return(!rlang::is_bare_atomic(val))
+        },
+        error = function(e) {
+          # If evaluation fails, assume it's a column reference
+          return(TRUE)
+        }
+      )
+    }
+    return(TRUE)
   }) %>%
-    purrr::map(rlang::as_label) %>%
+    purrr::map(function(x) {
+      label <- rlang::as_label(x)
+      # Handle .data$column_name syntax
+      if (grepl("^\\.data\\$", label)) {
+        return(sub("^\\.data\\$", "", label))
+      }
+      return(label)
+    }) %>%
     unname() %>%
     unlist()
 }
 
-#' Coordinate to JSON options
+#' @title Coordinate to JSON options
 #'
 #' @param daes Output of [daes()].
 #' @param var Variable to retrieve.
@@ -182,5 +215,54 @@ daes_to_opts <- function(daes, var) {
   if (rlang::is_bare_atomic(daes[[var]])) {
     return(daes[[var]])
   }
-  rlang::as_label(daes[[var]])
+  label <- rlang::as_label(daes[[var]])
+  # Handle .data$column_name syntax
+  if (grepl("^\\.data\\$", label)) {
+    return(sub("^\\.data\\$", "", label))
+  }
+  # Try to evaluate as an expression (for numeric values like -pi/2, or logical like TRUE/FALSE)
+  # If it succeeds and returns a scalar, use that; otherwise return the label
+  # If the original aesthetic was provided as a quosure (captured expression),
+  # evaluate it in its captured environment using rlang::eval_tidy(). This
+  # ensures that user variables like `my_pal` defined in the calling frame
+  # are resolved and returned as atomic vectors (so they can be serialized
+  # to JavaScript as palettes).
+  if (rlang::is_quosure(daes[[var]])) {
+    tryCatch(
+      {
+        result <- rlang::eval_tidy(daes[[var]])
+        if (is.atomic(result)) {
+          # Convert named vectors to named lists to avoid jsonlite warning
+          if (!is.null(names(result))) {
+            return(as.list(result))
+          }
+          return(result)
+        }
+        return(label)
+      },
+      error = function(e) {
+        return(label)
+      }
+    )
+  }
+
+  # Fallback: try evaluating the label as an expression in the current
+  # environment. This mirrors the previous behaviour for simple literal
+  # expressions like -pi/2 or TRUE.
+  tryCatch(
+    {
+      result <- eval(parse(text = label))
+      if (is.atomic(result)) {
+        # Convert named vectors to named lists to avoid jsonlite warning
+        if (!is.null(names(result))) {
+          return(as.list(result))
+        }
+        return(result)
+      }
+      return(label)
+    },
+    error = function(e) {
+      return(label)
+    }
+  )
 }

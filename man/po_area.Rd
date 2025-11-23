@@ -4,7 +4,7 @@
 \alias{po_area}
 \title{Area}
 \usage{
-po_area(d3po, ..., data = NULL, inherit_daes = TRUE, stack = FALSE)
+po_area(d3po, ..., data = NULL, inherit_daes = TRUE)
 }
 \arguments{
 \item{d3po}{Either the output of \code{\link[=d3po]{d3po()}} or \code{\link[=d3po_proxy]{d3po_proxy()}}.}
@@ -15,8 +15,6 @@ po_area(d3po, ..., data = NULL, inherit_daes = TRUE, stack = FALSE)
 to \code{\link[=d3po]{d3po()}}.}
 
 \item{inherit_daes}{Whether to inherit aesthetics previous specified.}
-
-\item{stack}{Whether to stack the series.}
 }
 \value{
 an 'htmlwidgets' object with the desired interactive plot
@@ -25,28 +23,30 @@ an 'htmlwidgets' object with the desired interactive plot
 Plot an area chart.
 }
 \examples{
-# library(dplyr)
-# dout <- pokemon \%>\%
-#  filter(
-#   type_1 == "water"
-#  ) \%>\%
-#  group_by(type_1, color_1) \%>\%
-#  reframe(
-#   probability = c(0, 0.25, 0.5, 0.75, 1),
-#   quantile = quantile(speed, probability)
-#  )
+if (interactive()) {
+  trade_by_continent <- d3po::trade
+  trade_by_continent <- aggregate(
+    trade ~ year + reporter_continent,
+    data = trade_by_continent,
+    FUN = sum
+  )
 
-dout <- data.frame(
-  type_1 = rep("water", 5),
-  color_1 = rep("#6890F0", 5),
-  probability = c(0, 0.25, 0.5, 0.75, 1),
-  quantile = c(15, 57.25, 70, 82, 115)
-)
+  # Assign colors to continents
+  my_pal <- tintin::tintin_pal(option = "Cigars of the Pharaoh")(7)
 
-d3po(dout) \%>\%
-  po_area(daes(
-    x = probability, y = quantile, group = type_1,
-    color = color_1
-  )) \%>\%
-  po_title("Sample Quantiles for Water Pokemon Speed")
+  names(my_pal) <- c(
+    "Africa", "Antarctica", "Asia",
+    "Europe", "North America", "Oceania", "South America"
+  )
+
+  d3po(trade_by_continent, width = 800, height = 600) \%>\%
+    po_area(daes(
+      x = year, y = trade, group = reporter_continent, color = my_pal
+    )) \%>\%
+    po_labels(
+      x = "Year",
+      y = "Trade (USD billion)",
+      title = "Trade Distribution by Reporter Continent in 2019 and 2023"
+    )
+}
 }

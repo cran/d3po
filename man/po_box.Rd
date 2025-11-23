@@ -23,7 +23,30 @@ an 'htmlwidgets' object with the desired interactive plot
 Draw a boxplot.
 }
 \examples{
-d3po(pokemon) \%>\%
-  po_box(daes(x = type_1, y = speed, color = color_1)) \%>\%
-  po_title("Distribution of Pokemon speed by main type")
+if (interactive()) {
+  trade_continent <- d3po::trade
+  trade_continent <- aggregate(
+    trade ~ reporter_continent + reporter,
+    data = trade_continent,
+    FUN = sum
+  )
+
+  my_pal <- tintin::tintin_pal(option = "Destination Moon")(7)
+
+  names(my_pal) <- c(
+    "Africa", "Antarctica", "Asia",
+    "Europe", "North America", "Oceania", "South America"
+  )
+
+  d3po(trade_continent, width = 800, height = 600) \%>\%
+    po_box(daes(
+      x = reporter_continent, y = trade, color = my_pal,
+      tooltip = reporter_continent
+    )) \%>\%
+    po_labels(
+      x = "Continent",
+      y = "Trade (USD billion)",
+      title = "Trade Distribution by Reporter Continent"
+    )
+}
 }

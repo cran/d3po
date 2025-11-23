@@ -1,3 +1,20 @@
+# d3po 1.0.1
+
+* Adds an optional `limits = c(min, max)` argument to `po_geomap()` to set gradient limits.
+
+# d3po 1.0.0
+
+* Option to show/hide the download buttons.
+* Allows to customize background color and font.
+* Fully responsive to window size changes.
+* Zoomable maps and networks.
+* The examples use base R.
+* Added full Shiny and Golem example app in the `d3podemo` folder.
+* Added minimal Shiny example for debugging without Golem in `debug-with-shiny.R`.
+* Added `po_theme()` to customize colors of axes, titles and tooltips.
+* Migrated to D3 7.9.0.
+* Minimal codebase.
+
 # d3po 0.5.5
 
 * Back to the pokemon dataset to provide simple examples.

@@ -4,7 +4,7 @@
 \alias{po_geomap}
 \title{Geomap}
 \usage{
-po_geomap(d3po, ..., data = NULL, map = NULL, inherit_daes = TRUE)
+po_geomap(d3po, ..., data = NULL, inherit_daes = TRUE, limits = NULL)
 }
 \arguments{
 \item{d3po}{Either the output of \code{\link[=d3po]{d3po()}} or \code{\link[=d3po_proxy]{d3po_proxy()}}.}
@@ -14,28 +14,48 @@ po_geomap(d3po, ..., data = NULL, map = NULL, inherit_daes = TRUE)
 \item{data}{Any dataset to use for plot, overrides data passed
 to \code{\link[=d3po]{d3po()}}.}
 
-\item{map}{map to use (i.e., any valid list or topojson file such as \code{maps$south_america} or \code{jsonlite::fromJSON("south_america.topojson", simplifyVector = F)})}
-
 \item{inherit_daes}{Whether to inherit aesthetics previous specified.}
+
+\item{limits}{A numeric vector of length 2 specifying the minimum and maximum values for the color scale.}
 }
 \value{
 an 'htmlwidgets' object with the desired interactive plot
 }
 \description{
-Plot a geomap
+Plot a geomap using sf spatial objects
 }
 \examples{
-dout <- map_ids(d3po::maps$asia$japan)
-dout$value <- ifelse(dout$id == "TK", 1L, NA)
-dout$color <- ifelse(dout$id == "TK", "#bd0029", NA)
+if (interactive()) {
+  world <- d3po::national
 
-d3po(dout) \%>\%
-  po_geomap(
-    daes(
-      group = id, color = color, size = value,
-      tooltip = name
-    ),
-    map = d3po::maps$asia$japan
-  ) \%>\%
-  po_title("Pokemon was created in the Japanese city of Tokyo")
+  # Fix geometries that cross the antimeridian (date line) to avoid horizontal lines
+  # This affects Russia, Fiji, and other countries spanning the 180° meridian
+  world$geometry <- sf::st_wrap_dateline(world$geometry, options = c("WRAPDATELINE=YES"))
+
+  total_trade <- d3po::trade[
+    d3po::trade$year == 2023L,
+    c("reporter", "reporter_continent", "trade")
+  ]
+  total_trade <- aggregate(trade ~ reporter, data = total_trade, FUN = sum)
+  colnames(total_trade) <- c("country", "trade")
+
+  world <- merge(
+    world,
+    total_trade,
+    by = "country",
+    all.x = TRUE,
+    all.y = FALSE
+  )
+
+  my_pal <- tintin::tintin_pal(option = "The Calculus Affair")(7)
+
+  names(my_pal) <- c(
+    "Africa", "Antarctica", "Asia",
+    "Europe", "North America", "Oceania", "South America"
+  )
+
+  d3po(world, width = 800, height = 600) \%>\%
+    po_geomap(daes(group = country, size = trade, color = my_pal, tooltip = country)) \%>\%
+    po_labels(title = "Trade Volume by Country in 2023")
+}
 }

@@ -2,11 +2,11 @@
 % Please edit documentation in R/d3po-package.R, R/methods.R
 \docType{package}
 \name{d3po}
+\alias{d3po-package}
 \alias{d3po}
-\title{An \code{htmlwidget} interface to the
-d3po javascript chart library}
+\title{An \code{htmlwidget} interface to the d3po javascript chart library}
 \usage{
-d3po(data = NULL, ..., width = NULL, height = NULL, elementId = NULL)
+d3po(data = NULL, ..., width = NULL, height = NULL, element_id = NULL)
 }
 \arguments{
 \item{data}{d3po need explicit specified data objects formatted as JSON, and this parameter passed it from R.}
@@ -19,14 +19,41 @@ string and have \code{'px'} appended.}
 
 \item{height}{Same as width parameter.}
 
-\item{elementId}{Dummy string parameter. Useful when you have two or more charts on the same page.}
+\item{element_id}{Dummy string parameter. Useful when you have two or more charts on the same page.}
 }
 \value{
 Creates a basic 'htmlwidget' object for simple visualization
 }
 \description{
-This function provides 'd3po' methods from R console
+Apache licensed alternative to 'Highcharter' which provides functions for both fast and beautiful interactive visualization for 'Markdown' and 'Shiny'.
+
+Provides 'd3po' methods from R console
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://pacha.dev/d3po/}
+  \item Report bugs at \url{https://github.com/pachadotdev/d3po/issues}
+}
+
 }
 \author{
-Mauricio Vargas
+\strong{Maintainer}: Mauricio Vargas Sepulveda \email{m.vargas.sepulveda@gmail.com} (\href{https://orcid.org/0000-0003-1017-7574}{ORCID}) [copyright holder]
+
+Authors:
+\itemize{
+  \item John Coene
 }
+
+Other contributors:
+\itemize{
+  \item Ariel Alvarado [contributor]
+  \item Sylvain Lesage [contributor]
+  \item Curran Kelleher [contributor]
+  \item Fernando Becerra [contributor]
+  \item  Natural Earth [data contributor]
+  \item  R Consortium (Funded for the 2016-2017 ISC grants cycle) [funder]
+}
+
+}
+\keyword{internal}

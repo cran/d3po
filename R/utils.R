@@ -1,11 +1,7 @@
-#' Get Data
-#'
-#' Returns the appropriate data.
-#'
+#' @title Get Data
+#' @description Returns the appropriate data.
 #' @param x,y Dataframes to choose from.
-#'
 #' @return Either `x` or `y` is not `NULL`.
-#'
 #' @noRd
 #' @keywords internal
 .get_data <- function(x, y) {
@@ -15,15 +11,12 @@
   return(x)
 }
 
-#' Build Widget
-#'
-#' Builds the widget.
-#'
+#' @title Build Widget
+#' @description Builds the widget.
 #' @inheritParams d3po
-#'
 #' @noRd
 #' @keywords internal
-widget_this <- function(x, width = NULL, height = NULL, elementId = NULL) {
+widget_this <- function(x, width = NULL, height = NULL, element_id = NULL) {
   htmlwidgets::createWidget(
     name = "d3po",
     x,
@@ -36,7 +29,7 @@ widget_this <- function(x, width = NULL, height = NULL, elementId = NULL) {
       defaultWidth = "100%",
       defaultHeight = 400L
     ),
-    elementId = elementId
+    elementId = element_id
   )
 }
 
@@ -47,8 +40,17 @@ widget_this <- function(x, width = NULL, height = NULL, elementId = NULL) {
   # add key to data
   d3po <- .add_key(d3po)
 
-  d3po$x$tempdata <- NULL
+  # Copy axis labels into the top-level option names expected by the
+  # JavaScript renderer. JS looks for `options.xLabel` and `options.yLabel`.
+  if (!is.null(d3po$x$axis_labels) && is.list(d3po$x$axis_labels)) {
+    if (!is.null(d3po$x$axis_labels$x)) d3po$x$xLabel <- d3po$x$axis_labels$x
+    if (!is.null(d3po$x$axis_labels$y)) d3po$x$yLabel <- d3po$x$axis_labels$y
+  }
+
   d3po$x$daes <- NULL
+  d3po$x$is_sf <- NULL # Remove sf flag, not needed in JavaScript
+
+  # Note: we intentionally keep d3po$x$graph (if present) and d3po$x$data.
 
   return(d3po)
 }
@@ -96,4 +98,32 @@ get_vertices <- function(vertices) {
 get_edges <- function(edges) {
   names(edges)[1:2] <- c("source", "target")
   return(edges)
+}
+
+#' @title Fix GeoJSON Coordinate Structure
+#' @description Recursively fixes coordinate arrays from jsonlite nested list format
+#' to proper numeric vectors. This handles MultiPolygon structures where
+#' coordinates are nested multiple levels deep.
+#' @param coords Coordinate structure from jsonlite::fromJSON with simplifyVector=FALSE
+#' @return Fixed coordinate structure with proper numeric vector pairs
+#' @noRd
+#' @keywords internal
+fix_coordinates <- function(coords) {
+  # Base case: if this is a coordinate point (list with 2 elements that are numeric)
+  if (is.list(coords) && length(coords) == 2) {
+    # Check if both elements are single numeric values
+    if (is.numeric(coords[[1]]) && length(coords[[1]]) == 1 &&
+      is.numeric(coords[[2]]) && length(coords[[2]]) == 1) {
+      # This is a [x, y] point - convert from [[x], [y]] to c(x, y)
+      return(c(coords[[1]], coords[[2]]))
+    }
+  }
+
+  # Recursive case: if this is a list of coordinates, fix each one
+  if (is.list(coords)) {
+    return(lapply(coords, fix_coordinates))
+  }
+
+  # If it's already a numeric vector, return as-is
+  return(coords)
 }
