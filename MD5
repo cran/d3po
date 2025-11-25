@@ -1,8 +1,8 @@
-55ef27280ab2756d174ec08cd66169d4 *DESCRIPTION
+173224cecd5aad077db5a6c23d5a82e5 *DESCRIPTION
 8661b61de1ff58bf2e69d0cec0c44086 *NAMESPACE
-57d5b41ca28d11319f6ad15eedf91fca *NEWS.md
+4bcac2128c0ddbf6a71ac35170d15d73 *NEWS.md
 68d27163048679d5ecb0bf03d7e4983f *R/aes.R
-f46afaaf614377e81c544640c31898e2 *R/api.R
+5e40e15834e2f33c2ebfb387ecca9e84 *R/api.R
 f13b6e2e92c82bc160858e3153ca02c5 *R/assertions.R
 1c6aefa7d9d1d0338bee4e9d66926f63 *R/d3po-package.R
 9f0007339d8f4ac0c4b28de084221570 *R/data.R
@@ -16,7 +16,7 @@ e09b020ba284fb452947627390283a96 *data/subnational.rda
 3121a1bc0c2092b2c00ddab0939e93ae *data/trade.rda
 dc703ceaaf4fd40961a95f9e2e65736e *inst/doc/examples.R
 f44921ada69bf1ed0ac0e5722480bc78 *inst/doc/examples.Rmd
-179c6f0c261f7f12b3b486e953403181 *inst/doc/examples.html
+58e90c362fb13b8007dcceeb2d117792 *inst/doc/examples.html
 a0ae110a8753f83ce23d87b76db14c16 *inst/htmlwidgets/d3po.js
 fd23518e093b8a68479b5f9f41999c2f *inst/htmlwidgets/d3po.yaml
 69faba9d2fffc70c04f5620e7076efb0 *inst/htmlwidgets/lib/d3.min.js
